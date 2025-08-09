@@ -22,10 +22,12 @@ jobs:
         run: npm ci || npm i
       - name: Build list.json
         run: node scripts/build_list.js
-      - name: Commit generated files
+      - name: Commit and push generated files
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add public/levels/list.json || true
-          git commit -m "Regenerate levels list" || true
-          git push || true
+          git add public/sonolus/levels/list public/sonolus/levels/list.json || true
+          if ! git diff --quiet --exit-code -- public/sonolus/levels/list; then
+            git commit -m "Regenerate sonolus levels list [skip ci]" || true
+            git push origin HEAD:${{ github.ref_name }} || true
+          fi

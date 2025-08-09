@@ -1,0 +1,31 @@
+name: Build levels list
+on:
+  push:
+    paths:
+      - 'maps/**'
+      - 'scripts/**'
+  pull_request:
+    paths:
+      - 'maps/**'
+      - 'scripts/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install deps
+        run: npm ci || npm i
+      - name: Build list.json
+        run: node scripts/build_list.js
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add public/levels/list.json || true
+          git commit -m "Regenerate levels list" || true
+          git push || true
